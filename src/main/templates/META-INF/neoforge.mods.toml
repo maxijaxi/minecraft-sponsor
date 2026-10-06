@@ -1,0 +1,32 @@
+# Mod-Metadaten. Die ${...}-Platzhalter werden beim Build aus gradle.properties gefüllt.
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''
+Rein serverseitiges Sponsoring-System statt manueller Whitelist-Pflege:
+Ein Spieler darf auf den Server, wenn eine Kette von Sponsorings vom Wurzelknoten SERVER zu ihm führt.
+Clients brauchen den Mod nicht.
+'''
+
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"

@@ -47,7 +47,7 @@ Breitensuche ab `SERVER` berechnet.
 ## Installation auf dem Server
 
 1. Server stoppen und ein **Backup** der Welt sowie der `whitelist.json` anlegen.
-2. `sponsor-1.0.0.jar` nach `~/mc_tinkers/mods/` kopieren. Andere Mods sind nicht nötig.
+2. `sponsor-0.1.0.jar` von der [Releases-Seite](https://github.com/maxijaxi/minecraft-sponsor/releases) herunterladen und nach `~/mc_tinkers/mods/` kopieren. Andere Mods sind nicht nötig.
 3. In `server.properties` müssen `white-list=true` und `enforce-whitelist=true` stehen. `online-mode=true`
    bleibt, wie es ist.
 4. Server starten. Beim **ersten Start** werden alle bestehenden Whitelist-Einträge als „gesponsert von SERVER“
@@ -108,7 +108,7 @@ starten.
 ## Bauen & Testen (nur Entwicklungsumgebung)
 
 ```bash
-./gradlew build      # kompiliert, führt die Unit-Tests aus, Jar unter build/libs/sponsor-1.0.0.jar
+./gradlew build      # kompiliert, führt die Unit-Tests aus, Jar unter build/libs/sponsor-0.1.0.jar
 ./gradlew test       # nur die Unit-Tests der Graph-Logik
 ./gradlew runServer  # Dev-Server in ./run mit leerer Welt (vorher eula=true in run/eula.txt setzen)
 ```

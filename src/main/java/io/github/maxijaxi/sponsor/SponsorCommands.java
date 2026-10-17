@@ -47,19 +47,19 @@ public final class SponsorCommands {
                 .then(Commands.literal("help")
                         .executes(ctx -> help(ctx.getSource())))
                 .then(Commands.literal("add")
-                        .then(Commands.argument("spieler", GameProfileArgument.gameProfile())
+                        .then(Commands.argument("player", GameProfileArgument.gameProfile())
                                 .suggests((ctx, builder) -> suggestOnlinePlayers(ctx.getSource(), builder))
                                 .executes(ctx -> run(ctx.getSource(), controller,
-                                        c -> c.add(ctx.getSource(), singleProfile(ctx, "spieler"))))))
+                                        c -> c.add(ctx.getSource(), singleProfile(ctx, "player"))))))
                 .then(Commands.literal("remove")
                         // Admins: Sponsoring durch SERVER entfernen, z. B. "/sponsor remove SERVER Steve".
                         .then(Commands.literal(SponsorData.SERVER_NAME)
                                 .requires(source -> source.hasPermission(ADMIN_LEVEL))
-                                .then(Commands.argument("ziel", GameProfileArgument.gameProfile())
+                                .then(Commands.argument("target", GameProfileArgument.gameProfile())
                                         .suggests((ctx, builder) -> suggest(controller, c -> c.targetNamesOf(SponsorGraph.SERVER), builder))
                                         .executes(ctx -> run(ctx.getSource(), controller,
-                                                c -> c.removeAsAdmin(ctx.getSource(), SponsorGraph.SERVER, singleProfile(ctx, "ziel"))))))
-                        .then(Commands.argument("spieler", GameProfileArgument.gameProfile())
+                                                c -> c.removeAsAdmin(ctx.getSource(), SponsorGraph.SERVER, singleProfile(ctx, "target"))))))
+                        .then(Commands.argument("player", GameProfileArgument.gameProfile())
                                 .suggests((ctx, builder) -> suggest(controller, c -> {
                                     List<String> names = c.ownTargetNames(ctx.getSource());
                                     return ctx.getSource().hasPermission(ADMIN_LEVEL)
@@ -67,13 +67,13 @@ public final class SponsorCommands {
                                             : names;
                                 }, builder))
                                 .executes(ctx -> run(ctx.getSource(), controller,
-                                        c -> c.remove(ctx.getSource(), singleProfile(ctx, "spieler"))))
-                                // Admins: "/sponsor remove <sponsor> <spieler>" entfernt eine fremde Kante.
-                                .then(Commands.argument("ziel", GameProfileArgument.gameProfile())
+                                        c -> c.remove(ctx.getSource(), singleProfile(ctx, "player"))))
+                                // Admins: "/sponsor remove <sponsor> <player>" entfernt eine fremde Kante.
+                                .then(Commands.argument("target", GameProfileArgument.gameProfile())
                                         .requires(source -> source.hasPermission(ADMIN_LEVEL))
                                         .suggests((ctx, builder) -> suggest(controller, SponsorController::sponsoredNames, builder))
                                         .executes(ctx -> run(ctx.getSource(), controller,
-                                                c -> c.removeAsAdmin(ctx.getSource(), singleProfile(ctx, "spieler").getId(), singleProfile(ctx, "ziel")))))))
+                                                c -> c.removeAsAdmin(ctx.getSource(), singleProfile(ctx, "player").getId(), singleProfile(ctx, "target")))))))
                 .then(Commands.literal("list")
                         .executes(ctx -> run(ctx.getSource(), controller, c -> c.list(ctx.getSource()))))
                 .then(Commands.literal("me")
@@ -90,7 +90,7 @@ public final class SponsorCommands {
     }
 
     private static int help(CommandSourceStack source) {
-        for (String line : Msg.HELP.text().split("\n")) {
+        for (String line : Msg.HELP.text(SponsorConfig.languageOf(source)).split("\n")) {
             source.sendSuccess(() -> Component.literal(line), false);
         }
         return 1;
@@ -99,7 +99,7 @@ public final class SponsorCommands {
     private static int run(CommandSourceStack source, Supplier<SponsorController> supplier, ControllerAction action) throws CommandSyntaxException {
         SponsorController controller = supplier.get();
         if (controller == null) {
-            source.sendFailure(Msg.DISABLED.component());
+            source.sendFailure(Msg.DISABLED.component(SponsorConfig.languageOf(source)));
             return 0;
         }
         return action.run(controller);
@@ -109,7 +109,7 @@ public final class SponsorCommands {
     private static GameProfile singleProfile(CommandContext<CommandSourceStack> ctx, String argument) throws CommandSyntaxException {
         Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx, argument);
         if (profiles.size() != 1) {
-            throw new SimpleCommandExceptionType(Msg.ONE_PLAYER.component()).create();
+            throw new SimpleCommandExceptionType(Msg.ONE_PLAYER.component(SponsorConfig.languageOf(ctx.getSource()))).create();
         }
         return profiles.iterator().next();
     }

@@ -135,18 +135,17 @@ public final class SponsorService {
         return new RemoveResult(true, after.contains(target), List.copyOf(lost));
     }
 
-    /** Verständlicher Grund (deutsch) für einen Zugangsverlust, z. B. für das Protokoll. */
-    public static String describeLoss(LostAccess loss, UUID removedSponsor, UUID removedTarget, Function<UUID, String> names) {
+    /** Verständlicher Grund für einen Zugangsverlust in {@code lang}, z. B. für das Protokoll. */
+    public static String describeLoss(LostAccess loss, UUID removedSponsor, UUID removedTarget, Function<UUID, String> names, Lang lang) {
         String remaining = loss.remainingSponsors().stream().map(names).collect(Collectors.joining(", "));
         if (loss.player().equals(removedTarget)) {
-            String base = "Sponsoring durch " + names.apply(removedSponsor) + " entfernt";
             return loss.remainingSponsors().isEmpty()
-                    ? base + ", keine weiteren Sponsoren"
-                    : base + ", übrige Sponsoren ohne Zugang: " + remaining;
+                    ? CoreText.LOSS_DIRECT_NO_SPONSORS.format(lang, "sponsor", names.apply(removedSponsor))
+                    : CoreText.LOSS_DIRECT_SPONSORS_WITHOUT_ACCESS.format(lang, "sponsor", names.apply(removedSponsor), "sponsors", remaining);
         }
         return loss.remainingSponsors().isEmpty()
-                ? "keine Sponsoren mehr"
-                : "Kette zu SERVER unterbrochen, Sponsoren ohne Zugang: " + remaining;
+                ? CoreText.LOSS_INDIRECT_NO_SPONSORS.format(lang)
+                : CoreText.LOSS_INDIRECT.format(lang, "sponsors", remaining);
     }
 
     // ----------------------------------------------------------- reconcile

@@ -19,14 +19,14 @@ Breitensuche ab `SERVER` berechnet.
 
 | Befehl | Wer | Wirkung |
 |---|---|---|
-| `/sponsor add <spieler>` | alle | Du sponserst `<spieler>`, er kommt auf die Whitelist. |
-| `/sponsor remove <spieler>` | alle | Du beendest dein Sponsoring. Verliert dadurch jemand den Zugang (Kaskade), werden alle Betroffenen ausgetragen bzw. gekickt, und du bekommst eine Zusammenfassung. |
+| `/sponsor add <player>` | alle | Du sponserst `<player>`, er kommt auf die Whitelist. |
+| `/sponsor remove <player>` | alle | Du beendest dein Sponsoring. Verliert dadurch jemand den Zugang (Kaskade), werden alle Betroffenen ausgetragen bzw. gekickt, und du bekommst eine Zusammenfassung. |
 | `/sponsor list` | alle | Wen sponsere ich? (inkl. `x/3`) |
 | `/sponsor me` | Spieler | Wer sponsert mich, plus ein Pfad `SERVER -> … -> ich`. |
 | `/sponsor tree` | Admins (OP-Level 3+), Konsole | Alle erreichbaren Spieler als eingerückter Baum ab `SERVER` (kürzeste Ketten, weitere Sponsoren in Klammern). Spieler ohne Zugang mit ruhenden Sponsorings werden darunter aufgeführt. |
 | `/sponsor log [n]` | Admins, Konsole | Die letzten `n` Protokolleinträge (Standard 10, max. 100). |
-| `/sponsor remove <sponsor> <spieler>` | Admins, Konsole | Entfernt ein fremdes Sponsoring. |
-| `/sponsor remove SERVER <spieler>` | Admins, Konsole | Entfernt ein Sponsoring durch `SERVER`. |
+| `/sponsor remove <sponsor> <player>` | Admins, Konsole | Entfernt ein fremdes Sponsoring. |
+| `/sponsor remove SERVER <player>` | Admins, Konsole | Entfernt ein Sponsoring durch `SERVER`. |
 | `/sponsor` oder `/sponsor help` | alle | Kurzhilfe |
 
 - In der **Konsole/RCON** ist der Sponsor `SERVER`: `/sponsor add Steve` lässt SERVER Steve sponsern, ohne Limit
@@ -53,8 +53,8 @@ Breitensuche ab `SERVER` berechnet.
 4. Server starten. Beim **ersten Start** werden alle bestehenden Whitelist-Einträge als „gesponsert von SERVER“
    übernommen, niemand fliegt raus. Im Server-Log steht dann z. B.:
    ```
-   [Sponsor] Erster Start: 42 Whitelist-Einträge als Sponsoring durch SERVER übernommen.
-   [Sponsor] Bereit: 42 Spieler mit Zugang, 42 Sponsorings, Daten in .../world/sponsor
+   [Sponsor] First start: took over 42 whitelist entries as sponsorships by SERVER.
+   [Sponsor] Ready: 42 players with access, 42 sponsorships, data in .../world/sponsor
    ```
 5. Optional `config/sponsor-common.toml` anpassen (wird beim ersten Start angelegt und zur Laufzeit neu geladen).
 
@@ -69,7 +69,9 @@ Der Mod gleicht Whitelist und Graph **bei jedem Start**, **nach jeder Sponsor-Ä
   Protokoll vermerkt (`WHITELIST_ADOPT`). Admins können also weiterhin einfach `/whitelist add` benutzen. Wird so
   ein Spieler wieder eingetragen, der früher den Zugang verloren hat, gelten auch seine ruhenden Sponsorings wieder.
 - **Manuelles `/whitelist remove <name>`** eines gesponserten Spielers wird rückgängig gemacht
-  (`WHITELIST_READD`), denn maßgeblich ist der Graph. Zum Entziehen `/sponsor remove …` verwenden.
+  (`WHITELIST_READD`), denn maßgeblich ist der Graph. Zum Entziehen `/sponsor remove …` verwenden. Hat der
+  Spieler mehrere Sponsoren, muss jedes Sponsoring entfernt werden. Wer gar nicht mehr auf den Server soll, bekommt
+  am einfachsten ein Vanilla-`/ban`; die Bannliste gilt unabhängig von der Whitelist.
 - **OPs** kommen in Vanilla auch ohne Whitelist-Eintrag auf den Server. Verliert ein OP den Zugang, wird er
   ausgetragen, aber nicht gekickt, sondern nur informiert.
 
@@ -80,10 +82,23 @@ Der Mod gleicht Whitelist und Graph **bei jedem Start**, **nach jeder Sponsor-Ä
   maxSponsorships = 3        # Sponsorings pro Spieler
   minPlayTimeTicks = 720000  # 10 h Spielzeit (20 Ticks = 1 s)
 
-[messages]
+[language]
+  default = "en"             # Konsole, RCON, Protokoll und Spieler mit anderer Spielsprache
+  useClientLanguage = true   # Spieler mit deutscher Spielsprache (de_*) bekommen Deutsch
+
+[messages.en]
+  kick = "Your access to this server has been revoked: ..."
+  # ... alle Nachrichten auf Englisch, mit Platzhaltern wie {player}, {count}, {max}
+
+[messages.de]
   kick = "Dein Zugang zu diesem Server wurde entzogen: ..."
-  # ... alle Spielernachrichten, mit Platzhaltern wie {player}, {count}, {max}
+  # ... dieselben Nachrichten auf Deutsch
 ```
+
+**Sprache:** Standard ist Englisch. Der Server kennt die Spielsprache jedes Clients (Einstellung im Spiel, ohne
+Client-Mod). Spieler mit deutscher Spielsprache bekommen alle Nachrichten auf Deutsch, auch die Kick-Nachricht.
+Konsole, RCON, Server-Log und die Gründe in `log.jsonl` nutzen `default`. `/sponsor log` zeigt die Einträge in der
+Sprache des Lesers, gespeicherte Gründe aber so, wie sie geschrieben wurden.
 
 Die Datei liegt bewusst unter `config/` (Typ COMMON). Eine SERVER-Config würde NeoForge an die Clients
 synchronisieren, das widerspräche dem rein serverseitigen Ansatz.

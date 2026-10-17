@@ -146,15 +146,27 @@ class PersistenceTest {
                 List.of(new Affected(new PlayerRef(BOB, "Bob"), "Sponsoring durch Alice entfernt, keine weiteren Sponsoren")),
                 List.of(), null);
         assertEquals("[2026-01-01 12:00:00] SERVER entfernt Sponsoring Alice -> Bob | Zugang verloren: Bob (Sponsoring durch Alice entfernt, keine weiteren Sponsoren)",
-                remove.toDisplayString(ZoneOffset.UTC));
+                remove.toDisplayString(ZoneOffset.UTC, Lang.DE));
 
         LogEntry ownRemove = new LogEntry(NOW, Action.REMOVE, new PlayerRef(ALICE, "Alice"), new PlayerRef(ALICE, "Alice"), new PlayerRef(BOB, "Bob"),
                 List.of(), List.of(), "Bob behält Zugang über andere Sponsoren");
         assertEquals("[2026-01-01 12:00:00] Alice beendet Sponsoring für Bob (Bob behält Zugang über andere Sponsoren)",
-                ownRemove.toDisplayString(ZoneOffset.UTC));
+                ownRemove.toDisplayString(ZoneOffset.UTC, Lang.DE));
+
+        assertEquals("[2026-01-01 12:00:00] SERVER removed sponsorship Alice -> Bob | lost access: Bob (Sponsoring durch Alice entfernt, keine weiteren Sponsoren)",
+                remove.toDisplayString(ZoneOffset.UTC, Lang.EN));
+        assertEquals("[2026-01-01 12:00:00] Alice ended the sponsorship of Bob (Bob behält Zugang über andere Sponsoren)",
+                ownRemove.toDisplayString(ZoneOffset.UTC, Lang.EN));
+
+        LogEntry add = new LogEntry(NOW, Action.ADD, new PlayerRef(ALICE, "Alice"), null, new PlayerRef(BOB, "Bob"), List.of(),
+                List.of(new Affected(new PlayerRef(BOB, "Bob"), "newly sponsored")), null);
+        assertEquals("[2026-01-01 12:00:00] Alice sponsors Bob | gained access: Bob (newly sponsored)", add.toDisplayString(ZoneOffset.UTC, Lang.EN));
+        assertEquals("[2026-01-01 12:00:00] Alice sponsert Bob | Zugang erhalten: Bob (newly sponsored)", add.toDisplayString(ZoneOffset.UTC, Lang.DE));
 
         LogEntry migration = LogEntry.of(NOW, Action.MIGRATION, PlayerRef.server(), new PlayerRef(ALICE, "Alice"), null);
+        assertEquals("[2026-01-01 12:00:00] Migration: Alice taken over from the whitelist (sponsor: SERVER)",
+                migration.toDisplayString(ZoneOffset.UTC, Lang.EN));
         assertEquals("[2026-01-01 12:00:00] Migration: Alice von der Whitelist übernommen (Sponsor: SERVER)",
-                migration.toDisplayString(ZoneOffset.UTC));
+                migration.toDisplayString(ZoneOffset.UTC, Lang.DE));
     }
 }

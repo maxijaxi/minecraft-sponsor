@@ -148,35 +148,33 @@ public record LogEntry(Instant time, Action action, PlayerRef actor, PlayerRef s
         return list;
     }
 
-    /** Einzeilige, lesbare Darstellung (deutsch) für {@code /sponsor log}. */
-    public String toDisplayString(ZoneId zone) {
+    /** Einzeilige, lesbare Darstellung in {@code lang} für {@code /sponsor log}. Gründe stehen so, wie sie gespeichert wurden. */
+    public String toDisplayString(ZoneId zone, Lang lang) {
         StringBuilder line = new StringBuilder();
         line.append('[').append(DISPLAY_TIME.format(time.atZone(zone))).append("] ");
         String targetName = target == null ? "?" : target.name();
-        switch (action) {
-            case ADD -> line.append(actor.name()).append(" sponsert ").append(targetName);
+        line.append(switch (action) {
+            case ADD -> CoreText.LOG_ADD.format(lang, "actor", actor.name(), "target", targetName);
             case REMOVE -> {
                 PlayerRef edgeSponsor = sponsor == null ? actor : sponsor;
-                if (edgeSponsor.uuid().equals(actor.uuid())) {
-                    line.append(actor.name()).append(" beendet Sponsoring für ").append(targetName);
-                } else {
-                    line.append(actor.name()).append(" entfernt Sponsoring ").append(edgeSponsor.name()).append(" -> ").append(targetName);
-                }
+                yield edgeSponsor.uuid().equals(actor.uuid())
+                        ? CoreText.LOG_REMOVE_OWN.format(lang, "actor", actor.name(), "target", targetName)
+                        : CoreText.LOG_REMOVE_OTHER.format(lang, "actor", actor.name(), "sponsor", edgeSponsor.name(), "target", targetName);
             }
-            case MIGRATION -> line.append("Migration: ").append(targetName).append(" von der Whitelist übernommen (Sponsor: SERVER)");
-            case WHITELIST_ADOPT -> line.append("Manueller Whitelist-Eintrag ").append(targetName).append(" übernommen (Sponsor: SERVER)");
-            case WHITELIST_READD -> line.append(targetName).append(" wieder auf die Whitelist gesetzt");
-            case WHITELIST_ADD -> line.append(targetName).append(" auf die Whitelist gesetzt");
-            case WHITELIST_REMOVE -> line.append(targetName).append(" von der Whitelist entfernt");
-        }
+            case MIGRATION -> CoreText.LOG_MIGRATION.format(lang, "target", targetName);
+            case WHITELIST_ADOPT -> CoreText.LOG_WHITELIST_ADOPT.format(lang, "target", targetName);
+            case WHITELIST_READD -> CoreText.LOG_WHITELIST_READD.format(lang, "target", targetName);
+            case WHITELIST_ADD -> CoreText.LOG_WHITELIST_ADD.format(lang, "target", targetName);
+            case WHITELIST_REMOVE -> CoreText.LOG_WHITELIST_REMOVE.format(lang, "target", targetName);
+        });
         if (detail != null && !detail.isEmpty()) {
             line.append(" (").append(detail).append(')');
         }
         if (!lostAccess.isEmpty()) {
-            line.append(" | Zugang verloren: ").append(describe(lostAccess));
+            line.append(CoreText.LOG_LOST_ACCESS.format(lang, "players", describe(lostAccess)));
         }
         if (!gainedAccess.isEmpty()) {
-            line.append(" | Zugang erhalten: ").append(describe(gainedAccess));
+            line.append(CoreText.LOG_GAINED_ACCESS.format(lang, "players", describe(gainedAccess)));
         }
         return line.toString();
     }

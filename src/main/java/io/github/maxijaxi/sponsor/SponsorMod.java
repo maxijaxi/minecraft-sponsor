@@ -52,8 +52,8 @@ public final class SponsorMod {
             controller = SponsorController.start(event.getServer());
         } catch (Exception e) {
             controller = null;
-            LOGGER.error("[Sponsor] Start fehlgeschlagen. Das Sponsor-System bleibt deaktiviert und verändert die Whitelist nicht. "
-                    + "Bitte world/sponsor/graph.json prüfen (Backup?) und den Server neu starten.", e);
+            LOGGER.error("[Sponsor] Startup failed. The sponsor system stays disabled and does not touch the whitelist. "
+                    + "Check world/sponsor/graph.json (restore a backup?) and restart the server.", e);
         }
     }
 
@@ -69,13 +69,13 @@ public final class SponsorMod {
 
     private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (controller != null && event.getEntity() instanceof ServerPlayer player) {
-            guarded("Login", () -> controller.onLogin(player));
+            guarded("login", () -> controller.onLogin(player));
         }
     }
 
     private static void onCommand(CommandEvent event) {
         if (controller != null) {
-            guarded("Befehl", () -> controller.onCommandInput(
+            guarded("command", () -> controller.onCommandInput(
                     event.getParseResults().getContext().getSource(),
                     event.getParseResults().getReader().getString()));
         }
@@ -83,7 +83,7 @@ public final class SponsorMod {
 
     private static void onServerTick(ServerTickEvent.Post event) {
         if (controller != null) {
-            guarded("Whitelist-Abgleich", controller::tick);
+            guarded("whitelist sync", controller::tick);
         }
     }
 
@@ -92,7 +92,7 @@ public final class SponsorMod {
         try {
             action.run();
         } catch (RuntimeException e) {
-            LOGGER.error("[Sponsor] Fehler bei {}", what, e);
+            LOGGER.error("[Sponsor] Error during {}", what, e);
         }
     }
 }

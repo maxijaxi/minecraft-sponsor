@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.0 – 2026-10-17
+
+- Englisch ist jetzt die Standardsprache. Spieler mit deutscher Spielsprache (`de_*`) bekommen alle Nachrichten auf
+  Deutsch, auch die Kick-Nachricht. Der Server liest die Spielsprache des Clients, einen Client-Mod braucht es nicht.
+- Neue Config-Optionen unter `[language]`: `default` (`en`/`de`) für Konsole, RCON und Protokoll sowie
+  `useClientLanguage`.
+- Die Nachrichtentexte stehen jetzt getrennt in `[messages.en]` und `[messages.de]`. Wer in 0.1.0 Texte unter
+  `[messages]` angepasst hat, muss sie dort neu eintragen; die alten Einträge entfernt NeoForge beim Start.
+- `/sponsor tree` und `/sponsor log` sind ebenfalls zweisprachig, die Befehlsargumente heißen jetzt `<player>` und
+  `<target>`.
+- Server-Log-Meldungen des Mods sind auf Englisch.
+
 ## 0.1.0 – 2026-10-17
 
 Erste Testversion für Minecraft 1.21.1 mit NeoForge 21.1.252. Der Mod gehört nur auf den Server, Clients brauchen ihn nicht.

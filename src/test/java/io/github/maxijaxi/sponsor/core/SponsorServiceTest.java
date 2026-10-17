@@ -182,9 +182,13 @@ class SponsorServiceTest {
         LostAccess alice = result.lostAccess().get(0);
         assertEquals(List.of(CAROL), alice.remainingSponsors());
         assertEquals("Sponsoring durch SERVER entfernt, übrige Sponsoren ohne Zugang: Carol",
-                SponsorService.describeLoss(alice, SERVER, ALICE, data::nameOf));
+                SponsorService.describeLoss(alice, SERVER, ALICE, data::nameOf, Lang.DE));
         assertEquals("Kette zu SERVER unterbrochen, Sponsoren ohne Zugang: Alice",
-                SponsorService.describeLoss(result.lostAccess().get(1), SERVER, ALICE, data::nameOf));
+                SponsorService.describeLoss(result.lostAccess().get(1), SERVER, ALICE, data::nameOf, Lang.DE));
+        assertEquals("sponsorship by SERVER removed, remaining sponsors have no access: Carol",
+                SponsorService.describeLoss(alice, SERVER, ALICE, data::nameOf, Lang.EN));
+        assertEquals("chain to SERVER broken, sponsors without access: Alice",
+                SponsorService.describeLoss(result.lostAccess().get(1), SERVER, ALICE, data::nameOf, Lang.EN));
     }
 
     @Test
@@ -205,7 +209,9 @@ class SponsorServiceTest {
         assertFalse(second.targetStillHasAccess());
         assertEquals(List.of(CAROL, DAVE), lostPlayers(second));
         assertEquals("Sponsoring durch Bob entfernt, keine weiteren Sponsoren",
-                SponsorService.describeLoss(second.lostAccess().get(0), BOB, CAROL, data::nameOf));
+                SponsorService.describeLoss(second.lostAccess().get(0), BOB, CAROL, data::nameOf, Lang.DE));
+        assertEquals("sponsorship by Bob removed, no other sponsors",
+                SponsorService.describeLoss(second.lostAccess().get(0), BOB, CAROL, data::nameOf, Lang.EN));
     }
 
     @Test

@@ -12,6 +12,7 @@ Achtung: Das Skript LÖSCHT ``run/`` vor dem Start. Niemals mit einer echten Wel
 import json
 import os
 import pathlib
+import re
 import shutil
 import socket
 import struct
@@ -195,7 +196,7 @@ def stop_server(process, rcon):
 # --------------------------------------------------------------------------------- tests
 
 def phase_one():
-    print("=== Phase 1: Migration, Konsole als SERVER, manuelle Whitelist-Befehle", flush=True)
+    print("=== Phase 1 (Englisch): Migration, Konsole als SERVER, manuelle Whitelist-Befehle", flush=True)
     process, rcon = start_server("server-phase1.log")
     try:
         check(edges() == [(SERVER, "Alice"), (SERVER, "Bob")], f"Migration: Whitelist als SERVER-Sponsoring übernommen {edges()}")
@@ -204,18 +205,18 @@ def phase_one():
         check(whitelist_names() == ["Alice", "Bob"], "Migration: niemand von der Whitelist entfernt")
 
         out = rcon.command("sponsor add Carol")
-        check("SERVER sponsert jetzt Carol" in out, "Konsole sponsert als SERVER")
+        check("SERVER now sponsors Carol" in out, "Konsole sponsert als SERVER (Englisch als Standard)")
         check("Carol" in whitelist_names(), "Gesponserter Spieler steht auf der Whitelist")
         check((SERVER, "Carol") in edges(), "Kante SERVER -> Carol gespeichert")
 
         out = rcon.command("sponsor add Carol")
-        check("SERVER sponsert Carol bereits" in out, "Doppelte Kante wird abgelehnt")
+        check("SERVER already sponsors Carol" in out, "Doppelte Kante wird abgelehnt")
 
         out = rcon.command("sponsor list")
-        check("SERVER sponsert 3 Spieler: Alice, Bob, Carol" in out, "/sponsor list für die Konsole")
+        check("SERVER sponsors 3 player(s): Alice, Bob, Carol" in out, "/sponsor list für die Konsole")
 
         out = rcon.command("sponsor me")
-        check("nur für Spieler" in out, "/sponsor me ist für die Konsole gesperrt")
+        check("for players only" in out, "/sponsor me ist für die Konsole gesperrt")
 
         rcon.command("whitelist add Frank")
         wait_for(lambda: (SERVER, "Frank") in edges(), "Manuelles 'whitelist add' wird als SERVER-Sponsoring übernommen")
@@ -226,14 +227,21 @@ def phase_one():
         check(("WHITELIST_READD", "Bob") in log_actions(), "Wiedereintrag im Protokoll vermerkt")
 
         out = rcon.command("sponsor remove Frank")
-        check("Sponsoring SERVER -> Frank beendet" in out, "Konsole entfernt SERVER-Sponsoring")
+        check("Sponsorship SERVER -> Frank ended" in out, "Konsole entfernt SERVER-Sponsoring")
         check("Frank" not in whitelist_names(), "Spieler ohne Sponsor fliegt von der Whitelist")
+
+        out = rcon.command("sponsor log 2")
+        check("SERVER ended the sponsorship of Frank | lost access: Frank (sponsorship by SERVER removed, no other sponsors)" in out,
+              "/sponsor log auf Englisch, Grund in der Standardsprache gespeichert")
+        config = (RUN / "config" / "sponsor-common.toml").read_text(encoding="utf-8")
+        check("useClientLanguage" in config and "[messages.en]" in config and "[messages.de]" in config,
+              "Config enthält Sprachwahl und Texte für Englisch und Deutsch")
     finally:
         stop_server(process, rcon)
 
 
 def phase_two():
-    print("=== Phase 2: Spieler-Kanten (offline eingetragen), Baum, Kaskade, ruhende Kanten", flush=True)
+    print("=== Phase 2 (Deutsch): Spieler-Kanten (offline eingetragen), Baum, Kaskade, ruhende Kanten", flush=True)
     data = graph()
     data["players"].update({UUIDS["Dave"]: "Dave", UUIDS["Eve"]: "Eve"})
     data["edges"] += [
@@ -243,6 +251,11 @@ def phase_two():
         {"sponsor": UUIDS["Bob"], "target": UUIDS["Carol"], "since": "2026-01-01T12:00:00Z"},
     ]
     (WORLD / "sponsor" / "graph.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
+    # Ab hier Deutsch als Standardsprache (Konsole, RCON, Protokoll).
+    config_file = RUN / "config" / "sponsor-common.toml"
+    config, replaced = re.subn(r'(?m)^(\s*default\s*=\s*)"en"', r'\1"de"', config_file.read_text(encoding="utf-8"))
+    check(replaced == 1, "Standardsprache in der Config auf Deutsch umgestellt")
+    config_file.write_text(config, encoding="utf-8")
 
     process, rcon = start_server("server-phase2.log")
     try:
@@ -285,8 +298,8 @@ def main():
     phase_two()
     for log_name in ("server-phase1.log", "server-phase2.log"):
         text = (ROOT / log_name).read_text(encoding="utf-8", errors="replace")
-        check("[Sponsor] Bereit" in text, f"{log_name}: Mod gestartet")
-        check("[Sponsor] Fehler" not in text and "[Sponsor] Start fehlgeschlagen" not in text, f"{log_name}: keine Mod-Fehler")
+        check("[Sponsor] Ready" in text, f"{log_name}: Mod gestartet")
+        check("[Sponsor] Error" not in text and "[Sponsor] Startup failed" not in text, f"{log_name}: keine Mod-Fehler")
     if FAILURES:
         print(f"\n{len(FAILURES)} Prüfung(en) fehlgeschlagen:", *FAILURES, sep="\n - ")
         sys.exit(1)

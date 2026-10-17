@@ -121,6 +121,13 @@ starten.
 - GitHub Actions (`.github/workflows/build.yml`) führt Build, Unit-Tests und den Smoke-Test bei jedem Push aus und
   stellt die fertige Jar als Artefakt `sponsor-mod-jar` bereit.
 
+## Release erstellen
+
+1. `mod_version` in `gradle.properties` erhöhen und in `CHANGELOG.md` einen Abschnitt `## <version>` ergänzen.
+2. Auf GitHub unter **Actions → Build & Test → Run workflow** den Branch `main` wählen und `release` anhaken.
+3. Nur wenn Build, Unit-Tests und Smoke-Test grün sind, legt der Workflow den Tag `v<version>` und ein Release mit
+   der Jar an. Die Release-Notizen kommen aus dem passenden `CHANGELOG.md`-Abschnitt.
+
 ## Technisches
 
 - Der Mod lauscht nur auf Befehle (`RegisterCommandsEvent`, `CommandEvent` zum Erkennen von `whitelist`-Befehlen),

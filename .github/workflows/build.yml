@@ -21,7 +21,7 @@ jobs:
 
       # Kompiliert gegen NeoForge 21.1.252, führt die Unit-Tests der Graph-Logik aus und baut die .jar.
       - name: Build
-        run: ./gradlew build --stacktrace
+        run: ./gradlew build --continue --stacktrace
 
       - name: Upload mod jar
         uses: actions/upload-artifact@v4

@@ -1,4 +1,4 @@
-# Mod-Metadaten. Die ${...}-Platzhalter werden beim Build aus gradle.properties gefüllt.
+# Mod-Metadaten. Die Platzhalter werden beim Build aus gradle.properties gefüllt (Task generateModMetadata).
 modLoader="javafml"
 loaderVersion="${loader_version_range}"
 license="${mod_license}"

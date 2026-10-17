@@ -35,7 +35,7 @@ public final class SponsorConfig {
         List<String> codes = Arrays.stream(Lang.values()).map(Lang::code).toList();
         builder.comment("Language of the messages.").push("language");
         DEFAULT_LANGUAGE = builder
-                .comment("Language for the console, RCON, the log file and for players whose game language is not supported: "
+                .comment("Language for the console, RCON, world/sponsor/log.jsonl and for players whose game language is not supported: "
                         + String.join(", ", codes))
                 .defineInList("default", Lang.EN.code(), codes);
         USE_CLIENT_LANGUAGE = builder
@@ -93,9 +93,12 @@ public final class SponsorConfig {
         return useClient ? Lang.fromLocale(player.clientInformation().language(), fallback) : fallback;
     }
 
-    /** Sprache für Antworten an eine Befehlsquelle: Spieler wie {@link #languageOf(ServerPlayer)}, Konsole/RCON Standardsprache. */
+    /**
+     * Sprache für Antworten an eine Befehlsquelle. Maßgeblich ist der Empfänger ({@code source.source}), nicht das
+     * ausführende Entity: Bei {@code /execute as <spieler>} geht die Antwort weiter an den ursprünglichen Absender.
+     * Spieler bekommen ihre Sprache, Konsole/RCON/Befehlsblöcke die Standardsprache.
+     */
     public static Lang languageOf(CommandSourceStack source) {
-        ServerPlayer player = source.getPlayer();
-        return player != null ? languageOf(player) : defaultLanguage();
+        return source.source instanceof ServerPlayer player ? languageOf(player) : defaultLanguage();
     }
 }

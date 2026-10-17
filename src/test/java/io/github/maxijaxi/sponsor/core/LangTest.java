@@ -15,6 +15,14 @@ class LangTest {
     }
 
     @Test
+    void germanDialectsMapToGerman() {
+        for (String dialect : new String[] {"bar", "ksh", "nds_de", "swg", "sxu"}) {
+            assertEquals(Lang.DE, Lang.fromLocale(dialect, Lang.EN), dialect);
+        }
+        assertEquals(Lang.EN, Lang.fromLocale("lb_lu", Lang.EN));
+    }
+
+    @Test
     void otherLocalesUseTheFallback() {
         assertEquals(Lang.EN, Lang.fromLocale("en_us", Lang.DE));
         assertEquals(Lang.EN, Lang.fromLocale("fr_fr", Lang.EN));

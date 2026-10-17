@@ -44,10 +44,10 @@ public final class SponsorGraph {
         Objects.requireNonNull(target, "target");
         Objects.requireNonNull(since, "since");
         if (sponsor.equals(target)) {
-            throw new IllegalArgumentException("Selbst-Sponsoring ist nicht erlaubt: " + sponsor);
+            throw new IllegalArgumentException("Self-sponsoring is not allowed: " + sponsor);
         }
         if (SERVER.equals(target)) {
-            throw new IllegalArgumentException("SERVER kann nicht gesponsert werden");
+            throw new IllegalArgumentException("SERVER cannot be sponsored");
         }
         Map<UUID, Instant> targets = outgoing.computeIfAbsent(sponsor, key -> new LinkedHashMap<>());
         if (targets.containsKey(target)) {

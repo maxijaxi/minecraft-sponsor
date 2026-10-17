@@ -149,8 +149,10 @@ public enum Msg {
             "Note: new whitelist entries are automatically taken over as sponsorships by SERVER.",
             "Hinweis: Neue Whitelist-Einträge werden automatisch als Sponsoring durch SERVER übernommen."),
     WHITELIST_REMOVE_HINT("whitelistRemoveHint", "",
-            "Note: the whitelist is managed by the Sponsor mod. Sponsored players are added back automatically - use /sponsor remove.",
-            "Hinweis: Die Whitelist wird vom Sponsor-Mod verwaltet. Gesponserte Spieler werden automatisch wieder eingetragen - nutze /sponsor remove.");
+            "Note: the whitelist is managed by the Sponsor mod. Sponsored players are added back automatically "
+                    + "(if they are online, Minecraft still kicks them once). Use /sponsor remove to revoke access.",
+            "Hinweis: Die Whitelist wird vom Sponsor-Mod verwaltet. Gesponserte Spieler werden automatisch wieder eingetragen "
+                    + "(wer online ist, wird von Minecraft trotzdem einmal gekickt). Zum Entziehen /sponsor remove nutzen.");
 
     private final String key;
     private final String placeholders;

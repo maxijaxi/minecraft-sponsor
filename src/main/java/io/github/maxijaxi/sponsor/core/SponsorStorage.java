@@ -60,7 +60,7 @@ public final class SponsorStorage {
             return fromJson(JsonParser.parseString(json).getAsJsonObject());
         } catch (JsonParseException | IllegalStateException | IllegalArgumentException | NullPointerException
                  | UnsupportedOperationException | DateTimeParseException e) {
-            throw new IOException("Ungültige Sponsor-Daten in " + file + ": " + e.getMessage(), e);
+            throw new IOException("Invalid sponsor data in " + file + ": " + e.getMessage(), e);
         }
     }
 
@@ -114,7 +114,7 @@ public final class SponsorStorage {
     static SponsorData fromJson(JsonObject root) {
         int format = root.has("format") ? root.get("format").getAsInt() : FORMAT;
         if (format > FORMAT) {
-            throw new IllegalArgumentException("Unbekanntes Datenformat " + format + " (unterstützt: " + FORMAT + ")");
+            throw new IllegalArgumentException("Unknown data format " + format + " (supported: " + FORMAT + ")");
         }
         SponsorData data = new SponsorData();
         if (root.has("players")) {

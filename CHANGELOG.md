@@ -10,7 +10,10 @@
   `[messages]` angepasst hat, muss sie dort neu eintragen; die alten Einträge entfernt NeoForge beim Start.
 - `/sponsor tree` und `/sponsor log` sind ebenfalls zweisprachig, die Befehlsargumente heißen jetzt `<player>` und
   `<target>`.
-- Server-Log-Meldungen des Mods sind auf Englisch.
+- Deutsche Mundarten des Spiels (Boarisch, Kölsch, Plattdüütsch, Schwäbisch, Säggs'sch) bekommen ebenfalls Deutsch.
+- Server-Log-Meldungen des Mods sind auf Englisch, unabhängig von `default`.
+- Der Hinweis nach `/whitelist remove` erklärt jetzt, dass Minecraft einen Spieler, der online ist, dabei einmal
+  kickt, bevor der Mod ihn wieder einträgt.
 
 ## 0.1.0 – 2026-10-17
 

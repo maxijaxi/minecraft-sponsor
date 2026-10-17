@@ -47,7 +47,7 @@ Breitensuche ab `SERVER` berechnet.
 ## Installation auf dem Server
 
 1. Server stoppen und ein **Backup** der Welt sowie der `whitelist.json` anlegen.
-2. `sponsor-0.1.0.jar` von der [Releases-Seite](https://github.com/maxijaxi/minecraft-sponsor/releases) herunterladen und nach `~/mc_tinkers/mods/` kopieren. Andere Mods sind nicht nötig.
+2. Die neueste `sponsor-<version>.jar` von der [Releases-Seite](https://github.com/maxijaxi/minecraft-sponsor/releases) herunterladen und nach `~/mc_tinkers/mods/` kopieren. Andere Mods sind nicht nötig.
 3. In `server.properties` müssen `white-list=true` und `enforce-whitelist=true` stehen. `online-mode=true`
    bleibt, wie es ist.
 4. Server starten. Beim **ersten Start** werden alle bestehenden Whitelist-Einträge als „gesponsert von SERVER“
@@ -69,9 +69,11 @@ Der Mod gleicht Whitelist und Graph **bei jedem Start**, **nach jeder Sponsor-Ä
   Protokoll vermerkt (`WHITELIST_ADOPT`). Admins können also weiterhin einfach `/whitelist add` benutzen. Wird so
   ein Spieler wieder eingetragen, der früher den Zugang verloren hat, gelten auch seine ruhenden Sponsorings wieder.
 - **Manuelles `/whitelist remove <name>`** eines gesponserten Spielers wird rückgängig gemacht
-  (`WHITELIST_READD`), denn maßgeblich ist der Graph. Zum Entziehen `/sponsor remove …` verwenden. Hat der
-  Spieler mehrere Sponsoren, muss jedes Sponsoring entfernt werden. Wer gar nicht mehr auf den Server soll, bekommt
-  am einfachsten ein Vanilla-`/ban`; die Bannliste gilt unabhängig von der Whitelist.
+  (`WHITELIST_READD`), denn maßgeblich ist der Graph. Ist der Spieler gerade online, wirft Minecraft selbst ihn
+  dabei einmal vom Server (wegen `enforce-whitelist=true`); er kann sofort wieder joinen. Zum Entziehen
+  `/sponsor remove …` verwenden. Hat der Spieler mehrere Sponsoren, muss jedes Sponsoring entfernt werden. Wer gar
+  nicht mehr auf den Server soll, bekommt am einfachsten ein Vanilla-`/ban`; die Bannliste gilt unabhängig von der
+  Whitelist.
 - **OPs** kommen in Vanilla auch ohne Whitelist-Eintrag auf den Server. Verliert ein OP den Zugang, wird er
   ausgetragen, aber nicht gekickt, sondern nur informiert.
 
@@ -97,8 +99,10 @@ Der Mod gleicht Whitelist und Graph **bei jedem Start**, **nach jeder Sponsor-Ä
 
 **Sprache:** Standard ist Englisch. Der Server kennt die Spielsprache jedes Clients (Einstellung im Spiel, ohne
 Client-Mod). Spieler mit deutscher Spielsprache bekommen alle Nachrichten auf Deutsch, auch die Kick-Nachricht.
-Konsole, RCON, Server-Log und die Gründe in `log.jsonl` nutzen `default`. `/sponsor log` zeigt die Einträge in der
-Sprache des Lesers, gespeicherte Gründe aber so, wie sie geschrieben wurden.
+Konsole, RCON und die Gründe in `log.jsonl` nutzen `default`. Die eigenen Zeilen des Mods im Server-Log
+(`[Sponsor] …`) sind immer Englisch. Bei `/execute as <spieler>` zählt die Sprache dessen, der die Antwort bekommt.
+Deutsche Mundarten des Spiels (Boarisch, Kölsch, Plattdüütsch, Schwäbisch, Säggs'sch) zählen als Deutsch.
+`/sponsor log` zeigt die Einträge in der Sprache des Lesers, gespeicherte Gründe aber so, wie sie geschrieben wurden.
 
 Die Datei liegt bewusst unter `config/` (Typ COMMON). Eine SERVER-Config würde NeoForge an die Clients
 synchronisieren, das widerspräche dem rein serverseitigen Ansatz.
@@ -112,8 +116,9 @@ Alles liegt im Weltordner und landet damit im Welt-Backup:
 - `world/sponsor/log.jsonl`: Append-only-Protokoll, eine JSON-Zeile pro Ereignis mit Zeitstempel, Aktion,
   Ausführendem, Ziel und bei Kaskaden allen Betroffenen mit Grund, z. B.:
   ```json
-  {"time":"2026-10-06T18:00:00Z","action":"REMOVE","actor":{"uuid":"SERVER","name":"SERVER"},"sponsor":{"uuid":"SERVER","name":"SERVER"},"target":{"uuid":"…","name":"Alice"},"lostAccess":[{"uuid":"…","name":"Alice","reason":"Sponsoring durch SERVER entfernt, keine weiteren Sponsoren"},{"uuid":"…","name":"Dave","reason":"Kette zu SERVER unterbrochen, Sponsoren ohne Zugang: Alice"}]}
+  {"time":"2026-10-06T18:00:00Z","action":"REMOVE","actor":{"uuid":"SERVER","name":"SERVER"},"sponsor":{"uuid":"SERVER","name":"SERVER"},"target":{"uuid":"…","name":"Alice"},"lostAccess":[{"uuid":"…","name":"Alice","reason":"sponsorship by SERVER removed, no other sponsors"},{"uuid":"…","name":"Dave","reason":"chain to SERVER broken, sponsors without access: Alice"}]}
   ```
+  Die Gründe stehen in der Sprache von `[language] default` (Standard: Englisch).
   Aktionen: `ADD`, `REMOVE`, `MIGRATION`, `WHITELIST_ADOPT`, `WHITELIST_READD`, `WHITELIST_ADD`, `WHITELIST_REMOVE`.
 
 Kann `graph.json` nicht gelesen werden (z. B. von Hand kaputt editiert), bleibt der Mod **deaktiviert und verändert
@@ -123,7 +128,7 @@ starten.
 ## Bauen & Testen (nur Entwicklungsumgebung)
 
 ```bash
-./gradlew build      # kompiliert, führt die Unit-Tests aus, Jar unter build/libs/sponsor-0.1.0.jar
+./gradlew build      # kompiliert, führt die Unit-Tests aus, Jar unter build/libs/sponsor-<version>.jar
 ./gradlew test       # nur die Unit-Tests der Graph-Logik
 ./gradlew runServer  # Dev-Server in ./run mit leerer Welt (vorher eula=true in run/eula.txt setzen)
 ```
